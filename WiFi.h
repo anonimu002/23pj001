@@ -13,8 +13,6 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 WiFiManager wm;
 
-//const char* ssid = "U+Net9EAB";                          //WiFi ID
-//const char* password = "0A3B2B99A@";                      //해당 WiFi 비밀번호
 const char* mqtt_server = "mqtt.easylab.kr";            //MQTT 주소
 const char* topic_tempIn = "cms/temp_In";               //내부 온도
 const char* topic_humidIn = "cms/humid_In";             //내부 습도
@@ -35,6 +33,13 @@ const char* topic_MinuteH = "cms/HdetectMinute";        //인체감지 경과시
 const char* topic_SecondH = "cms/HdetectSecond";        //인체감지 경과시간(초)
 
 String IP;  //IP를 String으로 저장하기 위해 만들었다
+
+//메인에 있는 함수
+void MQTT_TempHumid();
+void MQTT_AirCO2();
+void MQTT_Human();
+
+//WiFi.h 내 함수
 void setup_wifi();
 void callback(char* topic, unsigned char* payload, unsigned int length);
 void reconnect();
@@ -79,23 +84,23 @@ void reconnect() {
         Serial.println(clientId);
         if (client.connect(clientId.c_str())) {
             Serial.println("connected");      
-            client.publish(topic_tempIn, String(temp_In).c_str(), true);
-            client.publish(topic_humidIn, String(humid_In).c_str(), true);
-            client.publish(topic_tempOut, String(temp_Out).c_str(), true);
-            client.publish(topic_humidOut, String(humid_Out).c_str(), true);
-            client.publish(topic_tempDif, String(tempDif).c_str(), true);
-            client.publish(topic_humidDif, String(humidDif).c_str(), true);
-            client.publish(topic_ReadCO2ppm, String(eco2).c_str(), true);
-            client.publish(topic_ReadCO2pbm, String(etvoc).c_str(), true);
-            client.publish(topic_mesTempIn, String(text_TempIn).c_str(), true);
-            client.publish(topic_mesTempOut, String(text_TempOut).c_str(), true);
-            client.publish(topic_mesCO2, String(text_CO2).c_str(), true);
-            client.publish(topic_textH, String(human_text).c_str(), true);
-            client.publish(topic_Hmeasured, String(human_measure).c_str(), true);
-            client.publish(topic_DayH, String(Hdect_Day).c_str(), true);
-            client.publish(topic_HourH, String(Hdect_Hour).c_str(), true);
-            client.publish(topic_MinuteH, String(Hdect_Minute).c_str(), true);
-            client.publish(topic_SecondH, String(Hdect_Second).c_str(), true);
+            client.publish(topic_tempIn, String(temp_In).c_str(), true);            //내부온도
+            client.publish(topic_humidIn, String(humid_In).c_str(), true);          //내부습도
+            client.publish(topic_tempOut, String(temp_Out).c_str(), true);          //외부온도
+            client.publish(topic_humidOut, String(humid_Out).c_str(), true);        //외부습도
+            client.publish(topic_tempDif, String(tempDif).c_str(), true);           //내부온도와 외부온도의 차이
+            client.publish(topic_humidDif, String(humidDif).c_str(), true);         //내부습도와 외부습도의 차이
+            client.publish(topic_ReadCO2ppm, String(eco2).c_str(), true);           //이산화탄소 농도(ppm)
+            client.publish(topic_ReadCO2pbm, String(etvoc).c_str(), true);          //이산화탄소 농도(ppb)
+            client.publish(topic_mesTempIn, String(text_TempIn).c_str(), true);     //내부온도 문자
+            client.publish(topic_mesTempOut, String(text_TempOut).c_str(), true);   //외부온도 문자
+            client.publish(topic_mesCO2, String(text_CO2).c_str(), true);           //이산화탄소 농도 문자
+            client.publish(topic_textH, String(human_text).c_str(), true);          //인체감지 문자
+            client.publish(topic_Hmeasured, String(human_measure).c_str(), true);   //인체감지 여부
+            client.publish(topic_DayH, String(Hdect_Day).c_str(), true);            //인체감지 경과시간(일)
+            client.publish(topic_HourH, String(Hdect_Hour).c_str(), true);          //인체감지 경과시간(시간)
+            client.publish(topic_MinuteH, String(Hdect_Minute).c_str(), true);      //인체감지 경과시간(분)
+            client.publish(topic_SecondH, String(Hdect_Second).c_str(), true);      //인체감지 경과시간(초)
         } else {
             Serial.print("failed, rc=");
             Serial.print(client.state());
@@ -109,9 +114,8 @@ void reconnect() {
 void Check_autoConnect(void){
     WiFi.mode(WIFI_STA);
     bool res = wm.autoConnect("AutoConnectAP","12345678");
-    if(!res){
-        Serial.println("Failed to connect");
-    }else{        
+    if(!res) Serial.println("Failed to connect");
+    else{        
         Serial.println("WiFi connected successfully");  
         Serial.printf("Chip ID: %06X\n", ESP.getChipId());
         Serial.print("SSID: ");
@@ -137,19 +141,5 @@ void Check_WifiReset(void){
             delay(500);
             ESP.restart();
         }
-    }  
-    static bool buttonPressed = false;  // 버튼 눌린 상태
-    if (digitalRead(START_KEY) == LOW) {
-        if (buttonPressed==false) {
-            Timer_ButtonPress = 0;  
-            buttonPressed = true; 
-        }        
-        if (Timer_ButtonPress > 5000) {
-            Serial.println("Resetting WiFi settings...");
-            wm.resetSettings(); 
-            ESP.restart();  
-        }
-    }else {
-        buttonPressed = false;  
     }
 }
