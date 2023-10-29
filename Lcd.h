@@ -18,7 +18,8 @@ byte h_cha[8]           ={0b01010, 0b01010, 0b11110, 0b00110, 0b01011, 0b10110, 
 byte h_i[8]             ={0b00001, 0b01001, 0b10101, 0b10101, 0b10101, 0b10101, 0b01001, 0b00001};    //이
 
 double tempDif, humidDif;   //온습도 차이 값 변수
-int printInterval = 0;      //프린트 종류
+int b_print = 0;            //출력 갱신 여부
+int printInterval = 0;      //출력 종류(0: 내부, 외부 온습도+차이, 1: 공기질, 2: 인체감지+경과시간)
 
 void SetupLCD(bool flag_Ready);                                                                                        //LCD '준비 중', '준비 완료' 출력
 void FlagLCD(bool flag_start, String IP);                                                               //WiFi 연결 성공 여부 출력
@@ -137,14 +138,14 @@ void Print_CO2_LCD(double co2, double air){
 
 void Print_TimerHuman_LCD(bool flagH, unsigned long Day, unsigned long Hour, unsigned long Minute, unsigned long Second){
     String DayLine, HourLine, MinuteLine, SecondLine;
-    (Day > 10) ? DayLine ="Day" : DayLine = " Day";
-    (Hour > 10) ? HourLine = " " : HourLine = " 0";
-    (Minute > 10) ? MinuteLine = ":" : MinuteLine = ":0";
-    (Second > 10) ? SecondLine = ":" : SecondLine = ":0";
+    (Day >= 10) ? DayLine ="Day" : DayLine = " Day";
+    (Hour >= 10) ? HourLine = " " : HourLine = " 0";
+    (Minute >= 10) ? MinuteLine = ":" : MinuteLine = ":0";
+    (Second >= 10) ? SecondLine = ":" : SecondLine = ":0";
     lcd.setCursor(0,0);
     lcd.print("Human Time");
     lcd.setCursor(0, 1);
-    (flagH == true) ? lcd.print("Detected") : lcd.print("Not found");
+    (flagH == true) ? lcd.print("Detected  ") : lcd.print("Not found  ");
     lcd.setCursor(-4,2);
     lcd.print(Day);
     lcd.print(DayLine);

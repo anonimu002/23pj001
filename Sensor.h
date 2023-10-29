@@ -80,8 +80,8 @@ void ReadPrint_TempHumidIn(){
 
     //내부 온도 값에 따라 문자를 저장한다
     if(temp_In >= 27) text_TempIn = "온도가 높습니다. 에어컨이나 선풍기를 틀고 생활하세요";
-    else if(temp_In >= 26.5 && temp_In < 27) text_TempIn = "적당한 온도입니다";
-    else text_TempIn = "온도가 낮습니다. 난방이나 보일러를 트시고 생활하시길 권장드립니다";
+    else if(temp_In >= 26.5 && temp_In < 27) text_TempIn = "적절한 온도입니다";
+    else text_TempIn = "온도가 낮습니다. 난방 온도를 높이시는 것을 권장드립니다";
 }
 
 void ReadPrint_TempHumidOut(){
