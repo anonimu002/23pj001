@@ -13,7 +13,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 WiFiManager wm;
 
-const char* mqtt_server = "mqtt.easylab.kr";            //MQTT 주소
+const char* mqtt_server = "broker.mqtt-dashboard.com";  //MQTT 주소
 const char* topic_tempIn = "cms/temp_In";               //내부 온도
 const char* topic_humidIn = "cms/humid_In";             //내부 습도
 const char* topic_tempOut = "cms/temp_Out";             //외부 온도
